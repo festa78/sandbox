@@ -1,0 +1,123 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# rust
+local_repository(
+    name = "rules_rust",
+    path = "/Users/takaaki.tagawa/ghq/github.com/bazelbuild/rules_rust",
+)
+# http_archive(
+#     name = "rules_rust",
+#     sha256 = "6bfe75125e74155955d8a9854a8811365e6c0f3d33ed700bc17f39e32522c822",
+#     urls = [
+#         "https://mirror.bazel.build/github.com/bazelbuild/rules_rust/releases/download/0.9.0/rules_rust-v0.9.0.tar.gz",
+#         "https://github.com/bazelbuild/rules_rust/releases/download/0.9.0/rules_rust-v0.9.0.tar.gz",
+#     ],
+# )
+
+load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
+
+rules_rust_dependencies()
+
+rust_register_toolchains()
+
+load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
+
+crate_universe_dependencies(bootstrap = True)
+
+load("@rules_rust//crate_universe:defs.bzl", "crates_repository")
+
+crates_repository(
+    name = "crate_index",
+    cargo_lockfile = "//:Cargo.lock",
+    generator_urls = {
+        "aarch64-apple-darwin": "https://github.com/bazelbuild/rules_rust/releases/download/0.9.0/cargo-bazel-aarch64-apple-darwin",
+    },
+    manifests = [
+        "//:Cargo.toml",
+        "//hello:Cargo.toml",
+    ],
+)
+
+load("@crate_index//:defs.bzl", "crate_repositories")
+
+crate_repositories()
+
+# go
+http_archive(
+    name = "io_bazel_rules_go",
+    sha256 = "16e9fca53ed6bd4ff4ad76facc9b7b651a89db1689a2877d6fd7b82aa824e366",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.34.0/rules_go-v0.34.0.zip",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.34.0/rules_go-v0.34.0.zip",
+    ],
+)
+
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
+
+go_rules_dependencies()
+
+go_register_toolchains(version = "1.18.3")
+
+http_archive(
+    name = "bazel_gazelle",
+    sha256 = "5982e5463f171da99e3bdaeff8c0f48283a7a5f396ec5282910b9e8a49c0dd7e",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.25.0/bazel-gazelle-v0.25.0.tar.gz",
+        "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.25.0/bazel-gazelle-v0.25.0.tar.gz",
+    ],
+)
+
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+
+gazelle_dependencies()
+
+# rules_docker
+local_repository(
+    name = "io_bazel_rules_docker",
+    path = "/Users/takaaki.tagawa/ghq/github.com/bazelbuild/rules_docker",
+)
+# http_archive(
+#     name = "io_bazel_rules_docker",
+#     sha256 = "b1e80761a8a8243d03ebca8845e9cc1ba6c82ce7c5179ce2b295cd36f7e394bf",
+#     urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.25.0/rules_docker-v0.25.0.tar.gz"],
+# )
+
+load(
+    "@io_bazel_rules_docker//repositories:repositories.bzl",
+    container_repositories = "repositories",
+)
+
+container_repositories()
+
+# NOTE: it installs go-v0.24.2.tar.gz which contains go v1.15.2.
+load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
+
+container_deps()
+
+# rules_docker rust
+load(
+    "@io_bazel_rules_docker//rust:image.bzl",
+    _rust_image_repos = "repositories",
+)
+
+_rust_image_repos()
+
+load(
+    "@io_bazel_rules_docker//container:container.bzl",
+    "container_pull",
+)
+
+# container_pull(
+#     name = "cc_image_base_arm64",
+#     architecture = "arm64",
+#     digest = "sha256:85e93527f62963332bf6ca0157d8ebd09ef72e34eff087b6f5ea05020da1dbdc",
+#     registry = "gcr.io",
+#     repository = "distroless/cc",
+# )
+
+# container_pull(
+#     name = "cc_image_base_arm64",
+#     registry = "index.docker.io",
+#     repository = "arm64v8/rust",
+#     tag = "latest",
+# )
