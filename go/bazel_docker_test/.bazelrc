@@ -1,0 +1,2 @@
+build:macos --@io_bazel_rules_docker//transitions:enable=false
+build:macos --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
