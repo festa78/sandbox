@@ -1,0 +1,9 @@
+platform(
+    name = "my_platform",
+    constraint_values = [
+        # "@platforms//os:linux",
+        "@platforms//os:osx",
+        # "@platforms//cpu:x86_64",
+        "@platforms//cpu:arm64",
+    ],
+)
